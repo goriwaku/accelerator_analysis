@@ -152,6 +152,7 @@ def create_industry_dummies(df):
 def make_dataset_for_reg(df, df_acc):
     df_acc = df_acc.drop(['accelerator', 'accelerator_name'], axis=1)
     df = pd.merge(df, df_acc, on='company', how='inner')
+    df_non_acc = df[df['accelerator']==0]
     df = df[df['accelerator']==1]
 
     # 参加までの日数を追加
@@ -163,11 +164,19 @@ def make_dataset_for_reg(df, df_acc):
 
     # 必要な列のみcsvに
     needed_cols = ['capital', 'university', 'venture', 'enterprise', 'procurement_before', 'procurement_after','timedelta', 
-                  'accelerator_type', 'energy_and_semiconductor', 'finance', 'ecology','bio', 'computer', 'service']
+                  'accelerator_type', 'energy_and_semiconductor', 'finance', 'ecology','bio', 'computer', 'service', 'accelerator']
 
     df = df[needed_cols]
-    df.to_csv('dataset/dataset_for_regression.csv', index=False)
+    df.drop('accelerator', axis=1).to_csv('dataset/dataset_for_regression.csv', index=False)
 
+    # アクセラ参加日による分割データセットの作成
+    mean_timedelta = df['timedelta'].mean()
+    over_mean = df[df['timedelta'] > mean_timedelta] 
+    less_mean = df[df['timedelta'] <= mean_timedelta]
+    needed_cols = ['capital', 'university', 'venture', 'enterprise', 'procurement_before', 'procurement_after',
+                   'energy_and_semiconductor', 'finance', 'ecology','bio', 'computer', 'service', 'accelerator']
+    pd.concat([df_non_acc, over_mean], axis=0)[needed_cols].dropna().to_csv('dataset/over_mean.csv', index=False)
+    pd.concat([df_non_acc, less_mean], axis=0)[needed_cols].dropna().to_csv('dataset/less_mean.csv', index=False)
 
 
 def add_accelerator_type(df):
@@ -205,9 +214,7 @@ def main():
     merged_df = pd.merge(main_df, proc_df, how='inner', on='company')
 
     # 廃業企業の削除
-    print(len(merged_df.index))
     merged_df.drop(merged_df.index[merged_df['close']==1], axis=0, inplace=True)
-    print(len(merged_df.index))
 
     # 業界ダミーの作成
     merged_df = create_industry_dummies(merged_df)

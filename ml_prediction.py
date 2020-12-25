@@ -78,6 +78,26 @@ def main():
 
     df_dropped.to_csv('predicted/df_dropped_na_with_ml.csv', index=False)
 
+    # 分割データセットの傾向スコア構成
+    ls = ['over_mean', 'less_mean']
+    for itm in ls:
+        df = pd.read_csv('dataset/' + itm + '.csv')
+        X = df[X_col]
+        y = df[y_col].astype(int)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=RANDOM_STATE, stratify=y)
+
+        # lgbmによる傾向スコアの構成
+        lgbm_model = lgbm.LGBMClassifier(random_state=RANDOM_STATE, 
+                                        class_weight={1:5.5, 0:1},  
+                                        colsample_bytree=0.8,
+                                        learning_rate=0.1,
+                                        n_estimators=500,
+                                        min_child_weight=30,
+                                        )
+        lgbm_model.fit(X_train, y_train)
+        lgbm_pred = lgbm_model.predict_proba(X)[:, 1]
+        df['lgbm_pred'] = lgbm_pred
+        df.to_csv('predicted/' + itm + '_with_ml.csv', index=False)
 
 
 if __name__ == '__main__':

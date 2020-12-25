@@ -17,3 +17,14 @@ shapiro.test(df[df$accelerator==0, ]$procurement_after)
 # Mann-WhiteneyのU検定
 wilcox.test(df[df$accelerator==1, ]$procurement_after, 
             df[df$accelerator==0, ]$procurement_after)
+
+result <- wilcox.test(df[df$accelerator==1, ]$procurement_after, 
+            df[df$accelerator==0, ]$procurement_after)
+filename <- 'result/Mann_whiteney_test.csv'
+write.table(cbind('N', length(df$accelerator)), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('W', result$statistic), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('p-value', result$p.value), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+

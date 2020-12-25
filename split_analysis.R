@@ -1,44 +1,43 @@
 library(Matching)
 
-df <- read.csv('predicted/df_with_na_with_ml.csv')
+less_mean <- read.csv('predicted/less_mean_with_ml.csv')
 
-P <- df$lgbm_pred
-
-
-match <- with(df, Match(procurement_after, 
-                        accelerator,
-                        P,
-                        Weight=1,
-                        caliper=0.2,
-)
-)
+# 平均以下のデータセットについて
+match <- with(less_mean, Match(procurement_after, 
+                               accelerator,
+                               lgbm_pred,
+                               Weight=2,
+                               caliper=0.2,
+                              )
+              )
 summary(match)
-filename <- 'result/ps_with_ml_result.csv'
+filename <- 'result/less_mean_result.csv'
 write.table(cbind('ESTIMATE', match$est), filename,
-            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+                  append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 write.table(cbind('SE', match$se), filename,
-            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+                  append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 t <- match$est / match$se
 write.table(cbind('T-stat', t), filename,
-            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+                  append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 p <- 2 * (1 - pnorm(abs(t)))
 write.table(cbind('p-value', p), filename,
-            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+                  append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 write.table(cbind('Original number of observations', match$orig.nobs), filename,
-            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+                  append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 write.table(cbind('Original number of treated obs', match$orig.treated.nobs), filename,
-            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+                  append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 write.table(cbind('SE', match$se), filename,
-            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+                  append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 
-df_tmp <- df
+
+df_tmp <- less_mean
 df_tmp$id <- 1:nrow(df_tmp)
-df_pair <- cbind(df_tmp[match$index.treated, c('id', colnames(df))],
-                 df_tmp[match$index.control, c('id', colnames(df))])
+df_pair <- cbind(df_tmp[match$index.treated, c('id', colnames(less_mean))],
+                 df_tmp[match$index.control, c('id', colnames(less_mean))])
 treat_cols <- list()
 control_cols <- list()
-for (i in 1: length(colnames(df))){
-  new_name <- paste0('treat_', colnames(df)[i])
+for (i in 1: length(colnames(less_mean))){
+  new_name <- paste0('treat_', colnames(less_mean)[i])
   treat_cols[i] <- new_name
   new_name <- paste0('control_', colnames(df)[i])
   control_cols[i] <- new_name
@@ -76,4 +75,3 @@ for (col in c('university',
               sqrt((mean_treat*(1-mean_treat) + mean_control*(1-mean_control)) / 2))
   print(paste0('SD_of_', col, ':', SD))
 }
-plot((df$accelerator-P))

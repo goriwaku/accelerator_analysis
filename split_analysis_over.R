@@ -1,19 +1,17 @@
 library(Matching)
 
-df <- read.csv('predicted/df_with_na_with_ml.csv')
+over_mean <- read.csv('predicted/over_mean_with_ml.csv')
 
-P <- df$lgbm_pred
-
-
-match <- with(df, Match(procurement_after, 
-                        accelerator,
-                        P,
-                        Weight=1,
-                        caliper=0.2,
+# 平均以上のデータセット
+match <- with(over_mean, Match(procurement_after, 
+                               accelerator,
+                               lgbm_pred,
+                               Weight=2,
+                               caliper=0.2,
 )
 )
 summary(match)
-filename <- 'result/ps_with_ml_result.csv'
+filename <- 'result/over_mean_result.csv'
 write.table(cbind('ESTIMATE', match$est), filename,
             append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 write.table(cbind('SE', match$se), filename,
@@ -31,16 +29,16 @@ write.table(cbind('Original number of treated obs', match$orig.treated.nobs), fi
 write.table(cbind('SE', match$se), filename,
             append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
 
-df_tmp <- df
+df_tmp <- over_mean
 df_tmp$id <- 1:nrow(df_tmp)
-df_pair <- cbind(df_tmp[match$index.treated, c('id', colnames(df))],
-                 df_tmp[match$index.control, c('id', colnames(df))])
+df_pair <- cbind(df_tmp[match$index.treated, c('id', colnames(over_mean))],
+                 df_tmp[match$index.control, c('id', colnames(over_mean))])
 treat_cols <- list()
 control_cols <- list()
-for (i in 1: length(colnames(df))){
-  new_name <- paste0('treat_', colnames(df)[i])
+for (i in 1: length(colnames(over_mean))){
+  new_name <- paste0('treat_', colnames(over_mean)[i])
   treat_cols[i] <- new_name
-  new_name <- paste0('control_', colnames(df)[i])
+  new_name <- paste0('control_', colnames(over_mean)[i])
   control_cols[i] <- new_name
 }
 colnames(df_pair) = c('treat_id', treat_cols, 'control_id', control_cols)
@@ -76,4 +74,3 @@ for (col in c('university',
               sqrt((mean_treat*(1-mean_treat) + mean_control*(1-mean_control)) / 2))
   print(paste0('SD_of_', col, ':', SD))
 }
-plot((df$accelerator-P))

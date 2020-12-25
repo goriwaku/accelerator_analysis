@@ -20,3 +20,12 @@ model <- with(df, lm_robust(procurement_after~
 )
 
 summary(model)
+filename <- 'result/regression_result_accelerator_effect.csv'
+result <- with(acc_model, cbind(coefficients, std.error, statistic, p.value))
+write.table(result, filename, append=TRUE, sep=',')
+write.table(cbind('N', length(df$computer)), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('R-squared', acc_model$r.squared), filename, 
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('Adj R-squared', acc_model$adj.r.squared), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
