@@ -1,6 +1,6 @@
 library(estimatr)
 
-df <- read.csv('dataset/df_dropped_na.csv')
+df <- read.csv('dataset/df_ltd.csv')
 
 df$capital <- log(df$capital+1e-7)
 df$procurement_before <- log(df$procurement_before+1e-7)
@@ -8,7 +8,7 @@ df$procurement_after <- log(df$procurement_after+1e-7)
 df <- na.omit(df)
 
 model <- with(df, lm_robust(procurement_after~
-                              accelerator+
+                              acc_short+
                               capital+
                               university+
                               venture+
@@ -18,11 +18,11 @@ model <- with(df, lm_robust(procurement_after~
                               finance+
                               computer+
                               service
-              )
+)
 )
 
 summary(model)
-filename <- 'result/regression_result_accelerator_effect.csv'
+filename <- 'result/regression_result_limited_obs.csv'
 result <- with(model, cbind(coefficients, std.error, statistic, p.value))
 write.table(result, filename, append=TRUE, sep=',')
 write.table(cbind('N', length(df$computer)), filename,

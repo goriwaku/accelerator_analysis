@@ -60,4 +60,21 @@ for (col in c('university',
               sqrt((mean_treat*(1-mean_treat) + mean_control*(1-mean_control)) / 2))
   print(paste0('SD_of_', col, ':', SD))
 }
-plot((df$accelerator-P))
+
+filename <- 'result/ps_with_ml_result.csv'
+write.table(cbind('ESTIMATE', match$est), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('SE', match$se), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+t <- match$est / match$se
+write.table(cbind('T-stat', t), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+p <- 2 * (1 - pnorm(abs(t)))
+write.table(cbind('p-value', p), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('Original number of observations', match$orig.nobs), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('Original number of treated obs', match$orig.treated.nobs), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
+write.table(cbind('SE', match$se), filename,
+            append=TRUE, sep=',', row.names=FALSE, col.names=FALSE)
