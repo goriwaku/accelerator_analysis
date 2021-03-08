@@ -16,6 +16,7 @@ type_finance <- df$accelerator_type * df$finance
 type_bio <- df$accelerator_type * df$bio
 type_computer <- df$accelerator_type * df$computer
 type_service <- df$accelerator_type * df$service
+timedelta_sq <- df$timedelta ^ 2
 
 acc_model <- with(df, 
                   lm_robust(procurement_after~
@@ -29,11 +30,12 @@ acc_model <- with(df,
                               finance+
                               computer+
                               service + 
-                              accelerator_type+
-                              timedelta_energy+
-                              timedelta_finance+
-                              timedelta_computer+
-                              timedelta_service
+                            #  accelerator_type+
+                              timedelta_sq
+                            #  timedelta_energy+
+                            #  timedelta_finance+
+                            #  timedelta_computer+
+                            #  timedelta_service
                             #  type_energy+
                             #  type_finance+
                             #  type_computer+

@@ -253,7 +253,6 @@ def make_dataset_for_reg(df, df_acc):
     pd.concat([df_non_acc, over_mean], axis=0)[needed_cols].dropna().to_csv('dataset/over_mean.csv', index=False)
     pd.concat([df_non_acc, less_mean], axis=0)[needed_cols].dropna().to_csv('dataset/less_mean.csv', index=False)
 
-
 def add_accelerator_type(df):
     acc_type_ls = []
     for item in df['governing'].values:
@@ -303,13 +302,16 @@ def main():
     make_dataset_for_reg(merged_df, acc_df)
 
     # 傾向スコアマッチング用のデータを作成
-    needed_cols = ['capital', 'university', 'venture', 'enterprise', 'accelerator', 'procurement_before', 
+    merged_df['timedelta'] = pd.to_datetime(merged_df['participation_date']) - pd.to_datetime(merged_df['foundation'])
+    merged_df['timedelta'] = merged_df['timedelta'].dt.days
+    needed_cols = ['capital', 'university', 'venture', 'enterprise', 'accelerator', 'procurement_before', 'timedelta',
                    'procurement_after', 'energy_and_semiconductor', 'finance', 'ecology', 'bio', 'computer', 'service']
     merged_df = merged_df[needed_cols]
     merged_df.to_csv('dataset/df_with_na.csv', index=False)
     merged_df2 = merged_df.fillna(0)
     merged_df2.to_csv('dataset/df_filled_na.csv', index=False)
-    merged_df = merged_df.dropna()
+    needed_cols.remove('timedelta')
+    merged_df = merged_df.dropna(subset=needed_cols)
     merged_df.to_csv('dataset/df_dropped_na.csv', index=False)
 
     # 観察期間制限のデータ

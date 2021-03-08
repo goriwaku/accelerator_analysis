@@ -1,0 +1,6 @@
+,coefficients,std.error,statistic,p.value
+(Intercept),-7.735647704,0.864487326,-8.948248826,1.10E-17
+accelerator,8.089969204,1.26293346,6.405697103,3.94E-10
+N,577,,,
+R-squared,0.087360278,,,
+Adj R-squared,0.085232913,,,
