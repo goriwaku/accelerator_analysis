@@ -239,10 +239,10 @@ def make_dataset_for_reg(df, df_acc):
 
     # 必要な列のみcsvに
     needed_cols = ['capital', 'university', 'venture', 'enterprise', 'procurement_before', 'procurement_after','timedelta', 
-                  'accelerator_type', 'energy_and_semiconductor', 'finance', 'ecology','bio', 'computer', 'service', 'accelerator']
+                  'accelerator_type', 'energy_and_semiconductor', 'finance', 'ecology','bio', 'computer', 'service', 'accelerator', 'limited_industry']
 
     df = df[needed_cols]
-    df.drop('accelerator', axis=1).to_csv('dataset/dataset_for_regression.csv', index=False)
+    df.drop('accelerator', axis=1).to_csv('dataset/dataset_for_regression_20220818.csv', index=False)
 
     # アクセラ参加日による分割データセットの作成
     mean_timedelta = df['timedelta'].mean()
@@ -275,7 +275,7 @@ def main():
     main_df.columns = ['No.', 'company', 'foundation', 'industry', 'capital', 'university', 'univ_name', 'venture', 'enterprise', 
                        'accelerator', 'accelerator_name', 'participation_date', 'procurement', 'close', 'close_date', 'close_type']
     new_df.columns = ['No.', 'company', 'event_num'] + list(new_df.columns[3:])
-    acc_df.columns = ['No.', 'company', 'accelerator', 'accelerator_name', 'governing']
+    acc_df.columns = ['No.', 'company', 'accelerator', 'accelerator_name', 'governing', 'limited_industry']
     main_df = strip_df(main_df, cols=('company', 'industry'))
     fill_0_cols = ['accelerator', 'university', 'venture', 'enterprise']
     main_df[fill_0_cols] = main_df[fill_0_cols].fillna(0)
